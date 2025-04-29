@@ -43,7 +43,7 @@ public class TokenService {
             JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                     .issuer("local")
                     .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plus(20, ChronoUnit.MINUTES))
+                    .expiresAt(Instant.now().plus(200, ChronoUnit.MINUTES))
                     .subject(authentication.getName())
                     .claim("scope",roles)
                     .build();
@@ -64,7 +64,7 @@ public class TokenService {
             JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                     .issuer("local")
                     .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plus(20, ChronoUnit.MINUTES))
+                    .expiresAt(Instant.now().plus(200, ChronoUnit.MINUTES))
                     .subject(appUser.getUsername())
                     .claim("scope",roles)
                     .build();

@@ -31,6 +31,7 @@ public class ProductDto {
 
     private double price;
     private double reducedPrice;
+    private double shippingCost;
 
     private boolean isNewArrival;
     private boolean isOnSale;

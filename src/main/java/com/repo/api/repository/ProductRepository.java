@@ -17,4 +17,7 @@ public interface ProductRepository extends CrudRepository<Product,Long> {
 
     @Query(value ="SELECT * FROM product p JOIN product_attribute a ON p.rec_id=a.product_rec_id WHERE p.product_name LIKE %?1% ",  nativeQuery = true)
     List<Product> findByProductNameLike(String productName);
+
+    @Query(value ="SELECT  * FROM product p JOIN product_attribute a ON p.rec_id=a.product_rec_id WHERE a.attribute_id=?1",nativeQuery = true)
+    Optional<Product> findByProductIdAndVariant(Long variant);
 }

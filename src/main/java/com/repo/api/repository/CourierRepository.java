@@ -1,6 +1,6 @@
 package com.repo.api.repository;
 
-import com.repo.api.model.utl.Courier;
+import com.repo.api.model.util.Courier;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

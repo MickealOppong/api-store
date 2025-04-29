@@ -4,18 +4,18 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Data
 public class CustomerDto {
 
-    private String name;
-    private String peselNumber;
+    private String firstName;
+    private String lastName;
     private String username;
     private String telephone;
     private Instant lastLogin;
-    private String accountNumber;
-    private String paymentAccount;
-    private LocalDateTime accountCreatedAt;
+    private List<CustomerAddressDto> customerDeliveryAddress = new ArrayList<>();
+    private List<CustomerAddressDto> customerInvoiceAddress = new ArrayList<>();
 }

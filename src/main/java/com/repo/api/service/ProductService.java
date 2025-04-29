@@ -74,7 +74,7 @@ public class ProductService {
     }
 
     public void addToLastWatched(Long productId,Long customerId,String sessionId){
-        Customer customer = customerDetailsService.getCustomerById(customerId);
+        Customer customer = customerDetailsService.getCustomer(customerId);
         LastWatched retrievedItem = lastWatchedRepository.findByProductId(productId).orElse(null);
 
                if(retrievedItem!=null && !retrievedItem.getSessionId().equals(sessionId)) {
@@ -95,7 +95,88 @@ public class ProductService {
 
     }
 
+    public ResponseDto<Object> getProductByIdAndVariant(Long variant){
+        Product product = productRepository.findByProductIdAndVariant(variant).orElse(null);
+        if(product!=null){
 
+            List<CategoryDto> categoryList = new ArrayList<>();
+            Set<AttributeDto> attributeList = new HashSet<>();
+            List<ParameterDto> parameterList = new ArrayList<>();
+
+            //product category dto
+            for(Category category :product.getCategoryList()){
+                CategoryDto categoryDto = CategoryDto.builder()
+                        .category(category.getCategory())
+                        .parent(category.getParent())
+                        .id(category.getRecId())
+                        .build();
+                categoryList.add(categoryDto);
+            }
+
+            //product attribute dto
+            for(ProductAttribute attribute:attributeRepository.findByProductRecId(product.getRecId())){
+                AttributeDto productAttribute= AttributeDto.builder()
+                        .id(attribute.getAttributeId())
+                        .attribute(attribute.getAttribute())
+                        .value(attribute.getValue())
+                        .build();
+                attributeList.add(productAttribute);
+            }
+            //product attribute dto
+            for(ProductAttribute attribute :attributeRepository.findByProductRecId(product.getRecId())){
+                AttributeDto attributeDto = AttributeDto.builder()
+                        .attribute(attribute.getAttribute())
+                        .value(attribute.getValue())
+                        .id(attribute.getAttributeId())
+                        .build();
+                attributeList.add(attributeDto);
+            }
+
+
+            //product parameter dto
+            for(Parameter parameter :product.getParameterList()){
+                ParameterDto parameterDto = ParameterDto.builder()
+                        .id(parameter.getId())
+                        .parameter(parameter.getParameter())
+                        .value(parameter.getValue())
+                        .build();
+                parameterList.add(parameterDto);
+            }
+
+            //product images
+            List<String> images =photoService.getProductImages(product.getRecId());
+
+            //product dto
+            ProductDto productDto = ProductDto.builder()
+                    .productId(product.getRecId())
+                    .productName(product.getProductName())
+                    .productImages(images)
+                    .productDescription(product.getProductDescription())
+                    .price(product.getPrice())
+                    .generalInfo1(product.getGeneralInfo1())
+                    .generalInfo2(product.getGeneralInfo2())
+                    .generalInfo3(product.getGeneralInfo3())
+                    .generalInfo4(product.getGeneralInfo4())
+                    .reducedPrice(product.getReducedPrice())
+                    .categoryList(categoryList)
+                    .parameterList(parameterList)
+                    .shippingCost(product.getShippingCost())
+                    .attributeList(attributeList)
+                    .productImages( photoService.getProductImages(product.getRecId()))
+                    .build();
+            return ResponseDto.builder()
+                    .data(productDto)
+                    .httpStatus(HttpStatus.OK)
+                    .message("Success")
+                    .build();
+        }
+
+        return ResponseDto.builder()
+                .data(null)
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message("Record does not exist")
+                .build();
+    }
     public ResponseDto<Object> getProductById(Long id){
         Product product = productRepository.findById(id).orElse(null);
         if(product!=null){
@@ -158,11 +239,11 @@ public class ProductService {
                     .generalInfo2(product.getGeneralInfo2())
                     .generalInfo3(product.getGeneralInfo3())
                     .generalInfo4(product.getGeneralInfo4())
-                    .isFreeShipping(product.isFreeShipping())
                     .reducedPrice(product.getReducedPrice())
                     .categoryList(categoryList)
                     .parameterList(parameterList)
                     .attributeList(attributeList)
+                    .shippingCost(product.getShippingCost())
                     .productImages( photoService.getProductImages(product.getRecId()))
                     .build();
             return ResponseDto.builder()
@@ -196,7 +277,8 @@ public class ProductService {
                     .productImages(images)
                     .productDescription(product.getProductDescription())
                     .price(product.getPrice())
-                    .isFreeShipping(product.isFreeShipping())
+                    .shippingCost(product.getShippingCost())
+                    .shippingCost(product.getShippingCost())
                     .reducedPrice(product.getReducedPrice())
                     .build();
             return ResponseDto.builder()
@@ -224,7 +306,7 @@ public class ProductService {
                     .productImages(images)
                     .productDescription(product.getProductDescription())
                     .price(product.getPrice())
-                    .isFreeShipping(product.isFreeShipping())
+                    .shippingCost(product.getShippingCost())
                     .reducedPrice(product.getReducedPrice())
                     .build();
            productList.add(productDto);
@@ -265,6 +347,21 @@ public class ProductService {
          }
     }
 
+    public Double getProductShippingCost(Long productId){
+
+       return productRepository.findById(productId).map(Product::getShippingCost).orElse(null);
+    }
+
+
+    public Double getProductPrice(Long productId){
+
+        return productRepository.findById(productId).map(Product::getPrice).orElse(null);
+    }
+
+    public Double getProductReducedPrice(Long productId){
+
+        return productRepository.findById(productId).map(Product::getReducedPrice).orElse(null);
+    }
     public ResponseDto<Object> getLastWatchedProducts(String sessionId,Long customerId){
 
         Set<ProductDto> lastWatchedList = new HashSet<>();
@@ -280,7 +377,7 @@ public class ProductService {
                             .productImages(images)
                             .productDescription(product.getProductDescription())
                             .price(product.getPrice())
-                            .isFreeShipping(product.isFreeShipping())
+                            .shippingCost(product.getShippingCost())
                             .reducedPrice(product.getReducedPrice())
                             .build();
                     lastWatchedList.add(productDto);
@@ -297,7 +394,7 @@ public class ProductService {
                             .productImages(images)
                             .productDescription(product.getProductDescription())
                             .price(product.getPrice())
-                            .isFreeShipping(product.isFreeShipping())
+                            .shippingCost(product.getShippingCost())
                             .reducedPrice(product.getReducedPrice())
                             .build();
                     lastWatchedList.add(productDto);
@@ -355,7 +452,7 @@ public class ProductService {
         Random random = new Random();
         try{
             return ResponseDto.builder()
-                    .data(  productRepository.findAll().stream().filter(Product::isFreeShipping).limit(random.nextInt()* 20L).toList())
+                    .data(  productRepository.findAll().stream().filter(product -> product.getShippingCost()==0.00).limit(random.nextInt()* 20L).toList())
                     .message("Success")
                     .httpStatus(HttpStatus.OK)
                     .build();
@@ -394,6 +491,7 @@ public class ProductService {
                        .productId(product.getRecId())
                        .productName(product.getProductName())
                        .price(product.getPrice())
+                       .shippingCost(product.getShippingCost())
                        .productDescription(product.getProductDescription())
                        .searchName(product.getSearchName())
                        .build();
@@ -424,6 +522,7 @@ public class ProductService {
                         .productId(product.getRecId())
                         .productName(product.getProductName())
                         .price(product.getPrice())
+                        .shippingCost(product.getShippingCost())
                         .productDescription(product.getProductDescription())
                         .searchName(product.getSearchName())
                         .build();

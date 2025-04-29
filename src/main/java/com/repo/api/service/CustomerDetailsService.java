@@ -1,5 +1,7 @@
 package com.repo.api.service;
 
+import com.repo.api.dto.CustomerAddressDto;
+import com.repo.api.dto.CustomerDto;
 import com.repo.api.dto.ResponseDto;
 import com.repo.api.dto.request.UserRegistrationRequest;
 import com.repo.api.model.user.Customer;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,14 +31,16 @@ public class CustomerDetailsService implements UserDetailsService {
     private final RolesRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
     private final ConsentPrivacyService consentPrivacyService;
+    private final GlobalAddressService globalAddressService;
 
     public CustomerDetailsService(CustomerRepository customerRepository,RolesRepository rolesRepository,
                                   @Lazy PasswordEncoder passwordEncoder,
-                                  ConsentPrivacyService consentPrivacyService){
+                                  ConsentPrivacyService consentPrivacyService,GlobalAddressService globalAddressService){
         this.customerRepository = customerRepository;
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = passwordEncoder;
         this.consentPrivacyService = consentPrivacyService;
+        this.globalAddressService=globalAddressService;
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -44,41 +49,110 @@ public class CustomerDetailsService implements UserDetailsService {
     }
 
 
-
-
-
-
-    public Customer getCustomerByUsername(String username){
-        return   customerRepository.findByUsername(username)
-                        .orElseThrow(()->new UsernameNotFoundException("Record does not exist"));
+    public Customer getCustomer(Long customerId){
+        return customerRepository.findById(customerId).
+                orElse(null);
     }
-    public Customer getCustomerById(Long id){
-        return   customerRepository.findById(id)
-                .orElse(null);
-    }
-    public boolean addUser(UserRegistrationRequest userRegistrationRequest){
-       Customer isUserAlreadyExist =customerRepository
-               .findByUsername(userRegistrationRequest.username()).orElse(null);
+    public ResponseDto<Object> getCustomerById(Long customerId){
+       try{
 
-       if (isUserAlreadyExist ==null){
+           Customer customer = customerRepository.findById(customerId)
+                   .orElse(null);
+           if(customer!=null){
 
-           Customer newCustomer =  Customer.builder()
-                   .firstName(userRegistrationRequest.firstName())
-                   .lastName(userRegistrationRequest.lastName())
-                   .password(passwordEncoder.encode(userRegistrationRequest.password()))
-                   .username(userRegistrationRequest.username())
-                   .customerRoles(Set.of(Objects.requireNonNull(rolesRepository.findByRole("USER").orElse(null))))
+               CustomerDto customerDto = CustomerDto.builder()
+                       .username(customer.getUsername())
+                       .telephone(customer.getTelephone())
+                       .firstName(customer.getFirstName())
+                       .lastName(customer.getLastName())
+                       .lastLogin(customer.getLastLogin())
+                       .customerDeliveryAddress((List<CustomerAddressDto>) globalAddressService
+                               .getCustomerDeliveryAddress(customerId).getData())
+                       .customerInvoiceAddress((List<CustomerAddressDto>) globalAddressService
+                               .getCustomerInvoiceAddress(customerId).getData())
+                       .build();
+               return ResponseDto.builder()
+                       .data(customerDto)
+                       .message("Success")
+                       .httpStatus(HttpStatus.OK)
+                       .build();
+           }
+           return ResponseDto.builder()
+                   .data(null)
+                   .message("No record found")
+                   .httpStatus(HttpStatus.NOT_FOUND)
                    .build();
-
-           newCustomer.userDefaultSettings();
-          Customer customer= customerRepository.save(newCustomer);
-          //default user consents
-           consentPrivacyService.saveConsent(customer);
-           //default user privacy
-           consentPrivacyService.savePrivacy(customer);
-           return true;
+       }catch (Exception e){
+           return ResponseDto.builder()
+                   .data(null)
+                   .message(e.getMessage())
+                   .httpStatus(HttpStatus.BAD_REQUEST)
+                   .build();
        }
-       return  false;
+    }
+    public ResponseDto<Object> getCustomerByUsername(String username){
+        try{
+
+            Customer customer = customerRepository.findByUsername(username)
+                    .orElse(null);
+            if(customer!=null){
+                return ResponseDto.builder()
+                        .data(customer)
+                        .message("Success")
+                        .httpStatus(HttpStatus.OK)
+                        .build();
+            }
+            return ResponseDto.builder()
+                    .data(null)
+                    .message("No record found")
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .build();
+        }catch (Exception e){
+            return ResponseDto.builder()
+                    .data(null)
+                    .message(e.getMessage())
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+    }
+    public ResponseDto<Object> addUser(UserRegistrationRequest userRegistrationRequest){
+            try{
+                Customer isUserAlreadyExist =customerRepository
+                        .findByUsername(userRegistrationRequest.username()).orElse(null);
+
+                if (isUserAlreadyExist ==null){
+
+                    Customer newCustomer =  Customer.builder()
+                            .firstName(userRegistrationRequest.firstName())
+                            .lastName(userRegistrationRequest.lastName())
+                            .password(passwordEncoder.encode(userRegistrationRequest.password()))
+                            .username(userRegistrationRequest.username())
+                            .customerRoles(Set.of(Objects.requireNonNull(rolesRepository.findByRole("USER").orElse(null))))
+                            .build();
+                    newCustomer.userDefaultSettings();
+                    Customer customer= customerRepository.save(newCustomer);
+                    //default user consents
+                    consentPrivacyService.saveConsent(customer);
+                    //default user privacy
+                    consentPrivacyService.savePrivacy(customer);
+                    return ResponseDto.builder()
+                            .httpStatus(HttpStatus.OK)
+                            .message("Success")
+                            .data(true)
+                            .build();
+                }
+                return ResponseDto.builder()
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .message("Found duplicate")
+                        .data(false)
+                        .build();
+            }catch (Exception e){
+                return ResponseDto.builder()
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .message(e.getMessage())
+                        .data(null)
+                        .build();
+            }
     }
 
     public void updateLastLogin(String username){
@@ -117,8 +191,65 @@ public class CustomerDetailsService implements UserDetailsService {
                     .build();
         }
     }
+    public ResponseDto<Object> updateName(Long id,String firstName,String lastName){
 
+        try{
 
+            Customer retrieveCustomer= customerRepository.findById(id).orElse(null);
+            if(retrieveCustomer !=null){
+                retrieveCustomer.setFirstName(firstName);
+                retrieveCustomer.setLastName(lastName);
+
+                customerRepository.save(retrieveCustomer);
+                return ResponseDto.builder()
+                        .data(true)
+                        .message("Name updated")
+                        .httpStatus(HttpStatus.OK)
+                        .build();
+            }
+
+            return ResponseDto.builder()
+                    .data(false)
+                    .message("Account does not exist")
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .build();
+        }catch (Exception e){
+            return ResponseDto.builder()
+                    .message("Oops, something went wrong. Please try again")
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build();
+        }
+    }
+    public ResponseDto<Object> updateUsername(Long id,String newUsername){
+
+        try{
+
+            Customer retrieveCustomer= customerRepository.findById(id).orElse(null);
+            if(retrieveCustomer !=null){
+                retrieveCustomer.setUsername(newUsername);
+
+                customerRepository.save(retrieveCustomer);
+                return ResponseDto.builder()
+                        .data(true)
+                        .message("Username updated")
+                        .httpStatus(HttpStatus.OK)
+                        .build();
+            }
+
+            return ResponseDto.builder()
+                    .data(false)
+                    .message("Account does not exist")
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .build();
+        }catch (Exception e){
+            return ResponseDto.builder()
+                    .message("Oops, something went wrong. Please try again")
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build();
+        }
+    }
     public ResponseDto<Object> updatePassword(Long id, String currentPassword, String newPassword){
         try{
             Customer retrieveCustomer= customerRepository.findById(id).orElse(null);

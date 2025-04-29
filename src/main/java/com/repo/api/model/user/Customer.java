@@ -29,8 +29,6 @@ public class Customer extends LogEntity implements UserDetails {
     private String lastName;
     private String telephone;
     private String password;
-    private String peselNumber;
-    private String accountNumber;
 
     //credit information
     private BigDecimal creditLimit ;

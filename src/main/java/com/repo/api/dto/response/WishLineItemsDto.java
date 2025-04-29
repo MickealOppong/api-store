@@ -12,17 +12,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CartLineItemsDto {
+public class WishLineItemsDto {
 
     private Long recId;
     private Long productId;
     private Double price;
     private Double reducedPrice;
     private String productName;
-    private Long quantity;
-    private boolean includeItem;
-    private double shippingCost;
 
-    private List<String>images = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
 }

@@ -2,7 +2,7 @@ package com.repo.api.util;
 
 import com.repo.api.model.product.Category;
 import com.repo.api.model.product.Product;
-import com.repo.api.model.utl.Slider;
+import com.repo.api.model.util.Slider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

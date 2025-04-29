@@ -1,15 +1,12 @@
 package com.repo.api.controller;
 
+import com.repo.api.dto.ResponseDto;
 import com.repo.api.dto.TokenDto;
-import com.repo.api.dto.request.LoginRequest;
 import com.repo.api.dto.request.UserRegistrationRequest;
 import com.repo.api.dto.response.LoginResponse;
-import com.repo.api.exceptions.LoginException;
 import com.repo.api.model.user.Customer;
 import com.repo.api.model.user.RefreshToken;
-import com.repo.api.service.CustomerDetailsService;
-import com.repo.api.service.RefreshTokenService;
-import com.repo.api.service.TokenService;
+import com.repo.api.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,15 +25,20 @@ public class AuthController {
     private final CustomerDetailsService customerDetailsService;
     private final RefreshTokenService refreshTokenService;
     private final TokenService tokenService;
+    private final CartService cartService;
+    private final WishListService wishListService;
 
 
 
     public AuthController(AuthenticationManager authenticationManager,CustomerDetailsService customerDetailsService,
-                          RefreshTokenService refreshTokenService,TokenService tokenService) {
+                          RefreshTokenService refreshTokenService,TokenService tokenService,CartService cartService,
+                          WishListService wishListService) {
         this.authenticationManager = authenticationManager;
         this.customerDetailsService = customerDetailsService;
         this.refreshTokenService = refreshTokenService;
         this.tokenService = tokenService;
+        this.cartService = cartService;
+        this.wishListService = wishListService;
     }
 
     @GetMapping
@@ -45,21 +47,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Boolean> createCustomer(@RequestBody UserRegistrationRequest userRegistrationRequest){
-        try {
-          boolean retValue=  customerDetailsService.addUser(userRegistrationRequest);
-          return ResponseEntity.ok(retValue);
-        }catch (LoginException e){
-           return ResponseEntity.badRequest().body(false);
-        }
+    public ResponseDto<Object> createCustomer(@RequestBody UserRegistrationRequest userRegistrationRequest){
+      return customerDetailsService.addUser(userRegistrationRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login(String username,String password,String sessionId){
                 Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(),loginRequest.password()));
+                .authenticate(new UsernamePasswordAuthenticationToken(username,password));
         if(authentication.isAuthenticated()){
-            Customer  customer = customerDetailsService.getCustomerByUsername(loginRequest.username());
+            Customer  customer =(Customer) customerDetailsService.getCustomerByUsername(username).getData();
+
+            //update cart table with customer if cart exist
+            cartService.updateCartTableOnCustomerLogin(customer,sessionId);
+            wishListService.updateCartTableOnCustomerLogin(customer,sessionId);
 
             //update last login on account login
             customerDetailsService.updateLastLogin(customer.getUsername());

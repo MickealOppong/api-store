@@ -1,8 +1,6 @@
 package com.repo.api.controller;
 
-import com.repo.api.dto.CustomerDto;
 import com.repo.api.dto.ResponseDto;
-import com.repo.api.model.user.Customer;
 import com.repo.api.service.CustomerDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,23 +19,9 @@ public class CustomerController {
         this.customerDetailsService = customerDetailsService;
     }
 
-
-
-    @GetMapping("/user")
-    public CustomerDto getCustomer(String username){
-
-        Customer customer= customerDetailsService.getCustomerByUsername(username);
-
-        return CustomerDto.builder()
-                .accountCreatedAt(customer.getCreatedAt())
-                .lastLogin(customer.getLastLogin())
-                .peselNumber(customer.getPeselNumber())
-                .username(customer.getUsername())
-                .accountNumber(customer.getAccountNumber())
-                .paymentAccount(customer.getPaymentAccountInformation().getAccountNumber())
-                .name(customer.getFirstName()+" "+ customer.getLastName())
-                .telephone(customer.getTelephone())
-                .build();
+    @GetMapping("/{customerId}")
+    public ResponseDto<Object> getCustomer(Long customerId){
+        return customerDetailsService.getCustomerById(customerId);
     }
 
     @PatchMapping("/telephone")
@@ -50,5 +34,12 @@ public class CustomerController {
         return customerDetailsService.updatePassword(userId,currentPassword,newPassword);
     }
 
-
+    @PatchMapping("/editName")
+    public ResponseDto<Object> updateFirstNameAndLastName(Long userId,String firstName,String lastName){
+        return customerDetailsService.updateName(userId,firstName,lastName);
+    }
+    @PatchMapping("/username")
+    public ResponseDto<Object> updateUsername(Long userId,String newUsername){
+        return customerDetailsService.updateUsername(userId,newUsername);
+    }
 }

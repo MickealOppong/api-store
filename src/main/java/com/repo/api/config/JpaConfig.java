@@ -113,6 +113,7 @@ public class JpaConfig {
                     .productDescription("Shoe small")
                     .productName("Za Shoe")
                     .reducedPrice(90)
+                    .shippingCost(9.99)
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
                             " ratione dolorum aperiam corporis nam praesentium consequatur quidem distinctio modi vero dolor beatae quaerat. Quis, ipsum vitae.")
                     .generalInfo2("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -126,6 +127,7 @@ public class JpaConfig {
             Product product2 = Product.builder()
                     .price(999)
                     .reducedPrice(99)
+                    .shippingCost(9.99)
                     .productDescription("Travel charger")
                     .productName("Charger")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -141,6 +143,7 @@ public class JpaConfig {
             Product product7 = Product.builder()
                     .price(99)
                     .reducedPrice(190)
+                    .shippingCost(9.99)
                     .productDescription("Pen")
                     .productName("Bic pen")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -156,6 +159,7 @@ public class JpaConfig {
             Product product3 = Product.builder()
                     .price(300)
                     .reducedPrice(349)
+                    .shippingCost(9.99)
                     .productDescription("Travel charger")
                     .productName("Charger")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -171,6 +175,7 @@ public class JpaConfig {
             Product product4 = Product.builder()
                     .price(340)
                     .reducedPrice(230)
+                    .shippingCost(0.00)
                     .productDescription("Iphone xs max")
                     .productName("Iphone")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -186,6 +191,7 @@ public class JpaConfig {
             Product product5 = Product.builder()
                     .price(89)
                     .reducedPrice(29)
+                    .shippingCost(0.00)
                     .productDescription("Smart tv")
                     .productName("Smart tv")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +
@@ -201,6 +207,7 @@ public class JpaConfig {
             Product product6 = Product.builder()
                     .price(30)
                     .reducedPrice(99)
+                    .shippingCost(0.00)
                     .productDescription("Chair")
                     .productName("Chair")
                     .generalInfo1("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid saepe neque doloremque pariatur eum excepturi, culpa velit totam maxime dicta delectus explicabo quisquam" +

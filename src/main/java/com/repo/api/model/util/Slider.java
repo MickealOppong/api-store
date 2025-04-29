@@ -1,4 +1,4 @@
-package com.repo.api.model.utl;
+package com.repo.api.model.util;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

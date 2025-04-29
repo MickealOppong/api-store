@@ -5,7 +5,7 @@ import com.repo.api.dto.ResponseDto;
 import com.repo.api.impl.PhotoUtilImpl;
 import com.repo.api.model.product.Category;
 import com.repo.api.model.product.Product;
-import com.repo.api.model.utl.Slider;
+import com.repo.api.model.util.Slider;
 import com.repo.api.repository.CategoryRepository;
 import com.repo.api.repository.PhotoRepository;
 import com.repo.api.repository.ProductRepository;

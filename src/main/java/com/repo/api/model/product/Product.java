@@ -34,8 +34,8 @@ public class Product extends LogEntity {
 
     private double price;
     private double reducedPrice;
+    private double shippingCost;
 
-    private boolean isFreeShipping;
     private boolean isNewArrival;
     private boolean isOnSale;
 

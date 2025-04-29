@@ -7,10 +7,7 @@ import com.repo.api.service.CategoryService;
 import com.repo.api.service.ProductService;
 import com.repo.api.service.SliderService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -55,8 +52,12 @@ public class StoreController {
         return productService.getFreeShippingProducts();
     }
     @GetMapping("/product")
-    public ResponseDto<Object> product(Long productId) {
-        return productService.getProductById(productId);
+    public ResponseDto<Object> product(Long productId,String variant) {
+        if(!variant.equals("")){
+            return productService.getProductByIdAndVariant(Long.parseLong(variant));
+        }else{
+            return productService.getProductById(productId);
+        }
     }
     @GetMapping("/last-watched")
     public ResponseDto<Object> lastWatched(String sessionId,Long customerId) {
@@ -89,11 +90,41 @@ public class StoreController {
 
     @PostMapping("/last-watched")
     public void addToLastWatched(Long productId,String sessionId,Long customerId){
+        log.info(customerId+" "+sessionId);
          productService.addToLastWatched(productId,customerId,sessionId);
     }
 
     @PostMapping("/cart")
     public ResponseDto<Object> addToCart(CartRequest cartRequest){
+        log.info(cartRequest+"");
         return cartService.addToCart(cartRequest);
+    }
+
+    @PostMapping("/includeAll")
+    public ResponseDto<Object> includeAllItems(Long cartId,boolean includeAllItems){
+        return cartService.includeAllItems(cartId,includeAllItems);
+    }
+
+    @PostMapping("/include-item")
+    public ResponseDto<Object> includeItem(Long cartId,Long recId,boolean includeItem){
+
+        return cartService.includeItem(cartId,recId,includeItem);
+    }
+
+    @PatchMapping("/quantity")
+    public ResponseDto<Object> updateCartQuantity(Long recId,Long quantity){
+        log.info(recId+" "+quantity);
+        return cartService.updateCartQuantity(recId,quantity);
+    }
+
+    @DeleteMapping("/cart")
+    public ResponseDto<Object> deleteUserCart(Long cartId){
+        return cartService.deleteCart(cartId);
+    }
+
+
+    @DeleteMapping("/cart-item")
+    public ResponseDto<Object> deleteUserCartItem(Long recId){
+        return cartService.deleteCartItem(recId);
     }
 }

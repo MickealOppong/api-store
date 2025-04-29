@@ -2,7 +2,7 @@ package com.repo.api.service;
 
 import com.repo.api.dto.ResponseDto;
 import com.repo.api.dto.response.SliderDto;
-import com.repo.api.model.utl.Slider;
+import com.repo.api.model.util.Slider;
 import com.repo.api.repository.SliderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

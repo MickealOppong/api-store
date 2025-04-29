@@ -34,7 +34,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = RefreshToken.builder()
                 .customer(customerRepository.findByUsername(username)
                         .orElseThrow(()->new UsernameNotFoundException("Could not find "+username)))
-                .expiredAt(Instant.now().plus(20, ChronoUnit.MINUTES))
+                .expiredAt(Instant.now().plus(200, ChronoUnit.MINUTES))
                 .refreshToken(UUID.randomUUID().toString())
                 .issuedAt(Instant.now())
                 .build();
@@ -50,7 +50,7 @@ public class RefreshTokenService {
                 .customer(customerRepository.findByUsername(username)
                         .orElseThrow(()->new UsernameNotFoundException("Could not find "+username)))
                 .issuedAt(Instant.now())
-                .expiredAt(Instant.now().plus(20, ChronoUnit.MINUTES))
+                .expiredAt(Instant.now().plus(200, ChronoUnit.MINUTES))
                 .refreshToken(UUID.randomUUID().toString())
                 .build();
         //return new token to user
